@@ -3,6 +3,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Ashes of Eterna</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
 :root{color-scheme:dark;--bg:#0b0a0e;--panel:#17141c;--line:#3a3040;--ink:#d8cfc0;--spark:#ffd24a;--rust:#c2561f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -501,4 +504,36 @@ else{const u=U[nl];if(!u)return am('Аккаунт не найден. Нажми
 function logout(){sv2();runOn=0;try{localStorage.removeItem('aoe_sess')}catch(e){}cut=null;auth()}
 setInterval(sv2,5000);
 (function boot(){let s=null,U={};try{s=localStorage.getItem('aoe_sess')}catch(e){}U=rd('aoe_users');if(s&&U[s]){ACC={nl:s,n:U[s].n};loadBK();intro()}else auth()})();requestAnimationFrame(loop);
+  // --- Firebase Cloud Sync ---
+  // Инициализация Firebase SDK
+  const firebaseConfig = {
+    apiKey: "AIzaSyAWYS4aDY_PsX8DMgl638iwhAHSv6clSeE",
+    authDomain: "ashes-of-eterna.firebaseapp.com",
+    databaseURL: "https://ashes-of-eterna-default-rtdb.firebaseio.com",
+    projectId: "ashes-of-eterna",
+    storageBucket: "ashes-of-eterna.firebasestorage.app",
+    messagingSenderId: "73939713929",
+    appId: "1:73939713929:web:e816f1476b9820c9212b58",
+    measurementId: "G-H08Q5GV57Y"
+  };
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  const db = firebase.database();
+
+  // Функция сохранения прогресса игрока в облако
+  function savePlayerProgress(username, password, level = 1, coins = 0) {
+    if (!username) return;
+    const safeUsername = username.replace(/[.#$\/\[\]]/g, "_");
+    db.ref('players/' + safeUsername).set({
+      username: username,
+      password: password,
+      level: level,
+      coins: coins,
+      lastLogin: new Date().toLocaleString()
+    }).catch((error) => {
+      console.error("Ошибка сохранения в Firebase:", error);
+    });
+  }
 </script></body></html>
