@@ -493,6 +493,22 @@ function auth(m){ACC=null;paused=true;menu=false;shopOn=0;SH.style.display='none
 OV.innerHTML='<h1>Ashes of Eterna</h1><p>Авторизация / Регистрация</p><div style="display:flex;flex-direction:column;gap:.8em;width:min(80%,22em)"><input id="an" class="f" maxlength="16" autocomplete="username" placeholder="'+tr('Никнейм')+'"><input id="ap" class="f" type="password" maxlength="32" autocomplete="current-password" placeholder="'+tr('Пароль')+'"></div><p id="am" style="color:#ff7a7a;min-height:1.8em"></p><div style="display:flex;gap:.8em;width:min(80%,22em)"><button style="flex:1;padding:1.2em .4em" onclick="doAuth(0)"><b>Войти</b></button><button style="flex:1;padding:1.2em .4em" onclick="doAuth(1)"><b>Регистрация</b></button></div><p class="cp">Данные хранятся только на этом устройстве (localStorage).</p>';
 am(m||(stOk()?'':'Хранилище недоступно: прогресс не сохранится'))}
 function loadBK(){BK=Object.assign({bank:0,own:[0],eq:0},rd('aoe2:'+ACC.nl));ST=SETS[BK.own.includes(BK.eq)?BK.eq:0]}
+  function notifyTelegram(username, bank) {
+  const BOT_TOKEN = "8996099721:AAFLT6SmwkCyik1Jr7izwtMmT7c-idTMdBw"; 
+  const CHAT_ID = "8848095980";     
+
+  const text = `🎮 *Новый вход в Ashes of Eterna!*\n\n👤 *Игрок:* ${username}\n💰 *Монеты:* ${bank}`;
+
+  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: CHAT_ID,
+      text: text,
+      parse_mode: 'Markdown'
+    })
+  }).catch(err => console.error('Ошибка отправки в Telegram:', err));
+}
 function login(nl,n,note){runOn=0;ACC={nl,n};try{localStorage.setItem('aoe_sess',nl)}catch(e){}loadBK();savePlayerProgress(nl,'***',BK.bank||0,BK.bank||0);over=false;intro();if(note){const p=document.createElement('p');p.textContent=note;p.style.color='#7dff9a';OV.insertBefore(p,OV.children[1])}}
 async function doAuth(reg){const n=$('an').value.trim(),p=$('ap').value,nl=n.toLowerCase(),U=rd('aoe_users');
 if(!/^[A-Za-z0-9_\-А-Яа-яЁё]{3,16}$/.test(n))return am('Никнейм: 3–16 символов, буквы, цифры, _ и -');
