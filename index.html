@@ -3,6 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Ashes of Eterna</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -539,11 +540,39 @@ UPG=[{k:'wd',tb:0,n:'Урон оружия',d:'+10% урона за уровен
 {k:'hp',tb:1,n:'Крепкое сердце',d:'+15 макс. HP за уровень',b:70,m:10},{k:'ar',tb:1,n:'Броня',d:'-4% получаемого урона за уровень',b:100,m:8},{k:'rg',tb:1,n:'Регенерация',d:'+0.4 HP/с за уровень',b:120,m:8},{k:'sp',tb:1,n:'Сапоги',d:'+3% скорости за уровень',b:85,m:8}],
 POT=[{k:'h',n:'Зелье лечения',d:'+50% HP (клавиша 1)',p:40},{k:'s',n:'Зелье скорости',d:'+50% скорости 30 с (клавиша 2)',p:60},{k:'d',n:'Зелье ярости',d:'x2 урона 30 с (клавиша 3)',p:80},{k:'x',n:'Свиток опыта',d:'+50% до след. уровня (клавиша 4)',p:70}];
 function stb(i){stab=i;msg='';rsh()}
+// AdsGram Rewarded Video Integration (UnitID: 54377)
+function showAdsgramRewarded() {
+    if (!window.Adsgram) {
+        if (typeof ntf === 'function') ntf('AdsGram SDK не загружен', '#ff7a7a');
+        return;
+    }
+    try {
+        const adController = window.Adsgram.init({ blockId: "54377" });
+        adController.show().then((result) => {
+            if (result && result.done === false) {
+                if (typeof ntf === 'function') ntf('Реклама не завершена', '#ff7a7a');
+                return;
+            }
+            BK.bank = (Number(BK.bank) || 0) + 50;
+            if (typeof liveBonus === 'function') liveBonus();
+            if (typeof sv2 === 'function') sv2();
+            if (typeof ntf === 'function') ntf('+50 Ржавых Монет получено!', '#ffd24a');
+            if (typeof snd === 'function') snd(880, .2, 'triangle', .2);
+            if (typeof rsh === 'function' && shopOn) rsh();
+        }).catch(() => {
+            if (typeof ntf === 'function') ntf('Реклама пропущена или ошибка', '#ff7a7a');
+        });
+    } catch (e) {
+        console.error("Adsgram error:", e);
+        if (typeof ntf === 'function') ntf('Ошибка запуска рекламы', '#ff7a7a');
+    }
+}
+
 function rsh(){shv=rsh;BK.pot=BK.pot||{};BK.up=BK.up||{};const s=SETS[sel],own=BK.own.includes(sel);let body='';
 if(stab==2){body='<div class="shw"><div class="pvb"><canvas id="pv" width="96" height="96"></canvas><div id="pi">'+msg+'</div>'+(own?(BK.eq==sel?'<button disabled>Экипирован</button>':'<button onclick="eqp('+sel+')"><b>Экипировать</b></button>'):'<button onclick="buy('+sel+')"><b>Купить '+s.cost+' '+ic('coin')+'</b></button><button onclick="stars('+sel+')"><b>'+ic('star')+''+s.stars+' Stars</b></button>')+'</div><div class="sl">'+SETS.map((q,i)=>'<button class="card'+(i==sel?' sel':'')+'" onclick="ssel('+i+')"><b>'+q.nm+'</b>'+q.d+'<br>'+(BK.eq==i?''+ic('check')+'Экипирован':BK.own.includes(i)?'Куплен':q.cost+' '+ic('coin')+'')+'</button>').join('')+'</div></div>'}
 else if(stab==3){body='<div class="sl" style="width:min(96%,44em);grid-template-columns:1fr">'+POT.map(q=>'<div class="cell" style="text-align:left"><b>'+q.n+' · x'+(BK.pot[q.k]||0)+'</b>'+q.d+'<div class="row" style="margin-top:.6em;gap:2%;flex-wrap:nowrap"><button onclick="buyPot(\''+q.k+'\')"><b>Купить '+q.p+' '+ic('coin')+'</b></button><button '+((BK.pot[q.k]>0&&runOn&&!over)?'':'disabled ')+'onclick="usePot(\''+q.k+'\')"><b>Использовать</b></button></div></div>').join('')+'</div><div id="pi">'+msg+'</div>'}
 else{body='<div class="sl" style="width:min(96%,44em);grid-template-columns:1fr">'+UPG.filter(q=>q.tb==stab).map(q=>{const L=U(q.k);return '<button '+(L>=q.m?'disabled ':'')+'onclick="buyUp(\''+q.k+'\')"><b>'+q.n+' — '+L+'/'+q.m+'</b>'+q.d+'<br>'+(L>=q.m?'MAX':ucost(q)+' '+ic('coin')+'')+'</button>'}).join('')+'</div><div id="pi">'+msg+'</div>'+(stab==0?'<p class="cp">Редкое оружие продаёт Касим в Сахаре — портал в центре арены.</p>':'')}
-SH.innerHTML='<h1>'+ic('shop')+'Магазин</h1><div class="shw" style="gap:1.5%;flex-wrap:wrap">'+SHT.map((q,i)=>'<button class="card'+(i==stab?' sel':'')+'" style="flex:1 1 20%;text-align:center" onclick="stb('+i+')"><b>'+q+'</b></button>').join('')+'</div>'+body+'<p class="cp">Ржавые Монеты: '+BK.bank+' '+ic('coin')+'· '+COPY+'</p><div class="shw" style="gap:2%;flex-wrap:wrap"><button onclick="rwheel()"><b>'+ic('wheel')+'Рулетка'+(BK.ls===dk()?'':' ●')+'</b></button><button onclick="openCal()"><b>'+ic('cal')+'Календарь'+(calSt().tdy?'':' ●')+'</b></button><button onclick="rtal()"><b>'+ic('fire')+'Таланты Искры</b></button><button onclick="inv()"><b>'+ic('inv')+'Инвентарь</b></button><button onclick="mercOpen()"><b>'+ic('shield')+'Наёмники</b></button></div><button onclick="cshop()"><b>Назад</b></button>';
+SH.innerHTML='<h1>'+ic('shop')+'Магазин</h1><div class="shw" style="gap:1.5%;flex-wrap:wrap">'+SHT.map((q,i)=>'<button class="card'+(i==stab?' sel':'')+'" style="flex:1 1 20%;text-align:center" onclick="stb('+i+')"><b>'+q+'</b></button>').join('')+'</div>'+body+'<p class="cp">Ржавые Монеты: '+BK.bank+' '+ic('coin')+'· '+COPY+'</p><div class="shw" style="gap:2%;flex-wrap:wrap"><button onclick="showAdsgramRewarded()"><b>'+ic('gift')+'+50 Монет</b></button><button onclick="rwheel()"><b>'+ic('wheel')+'Рулетка'+(BK.ls===dk()?'':' ●')+'</b></button><button onclick="openCal()"><b>'+ic('cal')+'Календарь'+(calSt().tdy?'':' ●')+'</b></button><button onclick="rtal()"><b>'+ic('fire')+'Таланты Искры</b></button><button onclick="inv()"><b>'+ic('inv')+'Инвентарь</b></button><button onclick="mercOpen()"><b>'+ic('shield')+'Наёмники</b></button></div><button onclick="cshop()"><b>Назад</b></button>';
 PX=stab==2?$('pv').getContext('2d'):null}
 function buyUp(k){const q=UPG.find(x=>x.k==k);BK.up=BK.up||{};const L=BK.up[k]||0;if(L>=q.m)return;const c=ucost(q);
 if(!pay(c,()=>{BK.up[k]=L+1;if(k=='hp'&&P&&runOn&&!over){P.mh+=15;P.hp+=15}})){err(lack(c),rsh);return}
@@ -1206,4 +1235,3 @@ try{document.getElementById('spgo').focus({preventScroll:true})}catch(e){}
 })();
 </script>
 </body></html>
-
